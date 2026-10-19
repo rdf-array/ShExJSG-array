@@ -139,6 +139,8 @@ class ShExC:
             return self.shapeAnd(sexpr)
         elif isinstance(sexpr, ShExJ.ShapeNot):
             return self.shapeNot(sexpr)
+        elif isinstance(sexpr, ShExJ.Collection):
+            return self.collection(sexpr)
         elif isinstance(sexpr, ShExJ.NodeConstraint):
             return self.nodeConstraint(sexpr)
         elif isinstance(sexpr, ShExJ.Shape):
@@ -178,7 +180,19 @@ class ShExC:
         return self.binop(shapeAnd, 'AND')
 
     def shapeNot(self, shapeNot: ShExJ.ShapeNot) -> List[TOKEN]:
+        # RDF-: `((x))` is a Collection, so an AND/OR, which binop already parenthesises, is not wrapped again
+        if isinstance(shapeNot.shapeExpr, (ShExJ.ShapeOr, ShExJ.ShapeAnd)):
+            return [self.shapeExprLabel(shapeNot.id)] + ['NOT'] + self.shapeExpr(shapeNot.shapeExpr)
         return [self.shapeExprLabel(shapeNot.id)] + ['NOT ('] + self.shapeExpr(shapeNot.shapeExpr) + [')']
+
+    def collection(self, coll: ShExJ.Collection) -> List[TOKEN]:
+        """ RDF-: ((shapeExpr))[min, max]: [m] exactly m elements, [m, *] at least m, nothing for any length """
+        bounds = ''
+        if coll.min is not None or coll.max is not None:
+            mn = coll.min if coll.min is not None else 0
+            mx = coll.max if coll.max is not None else -1
+            bounds = f'[{mn}]' if mx == mn else f'[{mn}, *]' if mx == -1 else f'[{mn}, {mx}]'
+        return [self.shapeExprLabel(coll.id)] + ['(('] + self.shapeExpr(coll.shapeExpr) + ['))' + bounds]
 
     def nodeConstraint(self, nc: ShExJ.NodeConstraint) -> List[TOKEN]:
         constraints = []
