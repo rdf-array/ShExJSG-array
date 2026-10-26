@@ -180,13 +180,13 @@ class ShExC:
         return self.binop(shapeAnd, 'AND')
 
     def shapeNot(self, shapeNot: ShExJ.ShapeNot) -> List[TOKEN]:
-        # RDF-: `((x))` is a Collection, so an AND/OR, which binop already parenthesises, is not wrapped again
+        # rdf-array: `((x))` is a Collection, so an AND/OR, which binop already parenthesises, is not wrapped again
         if isinstance(shapeNot.shapeExpr, (ShExJ.ShapeOr, ShExJ.ShapeAnd)):
             return [self.shapeExprLabel(shapeNot.id)] + ['NOT'] + self.shapeExpr(shapeNot.shapeExpr)
         return [self.shapeExprLabel(shapeNot.id)] + ['NOT ('] + self.shapeExpr(shapeNot.shapeExpr) + [')']
 
     def collection(self, coll: ShExJ.Collection) -> List[TOKEN]:
-        """ RDF-: ((shapeExpr))[min, max]: [m] exactly m elements, [m, *] at least m, nothing for any length """
+        """ rdf-array: ((shapeExpr))[min, max]: [m] exactly m elements, [m, *] at least m, nothing for any length """
         bounds = ''
         if coll.min is not None or coll.max is not None:
             mn = coll.min if coll.min is not None else 0

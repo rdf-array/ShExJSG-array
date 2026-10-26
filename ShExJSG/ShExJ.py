@@ -588,7 +588,7 @@ class ShapeNot(jsg.JSGObject):
         self.shapeExpr = shapeExpr
 
 
-# RDF-: ((shapeExpr))[min, max], a sequence of min to max elements each conforming to shapeExpr (max -1: unbounded)
+# rdf-array: ((shapeExpr))[min, max], a sequence of min to max elements each conforming to shapeExpr (max -1: unbounded)
 class Collection(jsg.JSGObject):
     _reference_types = []
     _members = {'id': typing.Optional[shapeExprLabel],

@@ -1,15 +1,15 @@
 <img src=".github/rdf-array-logo.png" alt="[ShExJSG]" width="96" align="right">
 
-# ShExJSG-array: ShExJSG for RDF-
+# ShExJSG-array: ShExJSG for rdf-array
 
 **RDF-** fork of [ShExJSG](https://github.com/linkml/ShExJSG): the ShExJ schema (`ShExJSG/ShExJ.jsg`,
-compiled to `ShExJSG/ShExJ.py`) gains ShEx-'s **Collection** shape expression,
+compiled to `ShExJSG/ShExJ.py`) gains ShEx-array's **Collection** shape expression,
 `{"type": "Collection", "shapeExpr": …, "min": m, "max": n}` (both bounds optional, `max` −1 for
 `*`), in the `shapeExpr` union wherever a shape expression may appear, and the ShExC writer
 (`ShExJSG/ShExC.py`) writes it as `((shapeExpr))[m, n]`. The parser side is
 [grammar-python-antlr-linkml-array](https://github.com/rdf-array/grammar-python-antlr-linkml-array),
 the validator [PyShEx-array](https://github.com/rdf-array/PyShEx-array), whose doc/rdf-array.md
-describes RDF- and lists the sibling forks. `ShExJ.py` was edited by hand to match the `.jsg`
+describes rdf-array and lists the sibling forks. `ShExJ.py` was edited by hand to match the `.jsg`
 because `pyjsg`'s generator needs a newer ANTLR runtime than `pyshexc` pins.
 
 ---
