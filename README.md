@@ -3,10 +3,15 @@
 # ShExJSG-array: ShExJSG for rdf-array
 
 **RDF-** fork of [ShExJSG](https://github.com/linkml/ShExJSG): the ShExJ schema (`ShExJSG/ShExJ.jsg`,
-compiled to `ShExJSG/ShExJ.py`) gains ShEx-array's **Collection** shape expression,
-`{"type": "Collection", "shapeExpr": …, "min": m, "max": n}` (both bounds optional, `max` −1 for
-`*`), in the `shapeExpr` union wherever a shape expression may appear, and the ShExC writer
-(`ShExJSG/ShExC.py`) writes it as `((shapeExpr))[m, n]`. The parser side is
+compiled to `ShExJSG/ShExJ.py`) gains ShEx-array's **LIST** shape expression
+([array-syntax.md §7](https://github.com/rdf-array/rdf-array/blob/main/docs/array-syntax.md)):
+`{"type": "ListShape", "expression": …}`, whose expression is a `Member`
+(`{"type": "Member", "shapeExpr": …, "min": m, "max": n}`), a `ListEachOf` (ordered) or a `ListOneOf`
+(`{"type": "ListEachOf", "expressions": […], "min": m, "max": n}`), with `min` and `max` as on triple
+expressions (absent: 1; `max` −1: unbounded). `ListShape` is in the `shapeExpr` union wherever a shape
+expression may appear, and the ShExC writer (`ShExJSG/ShExC.py`) writes it as `LIST card x` when the
+expression is one `Member` with a cardinality over an inline shape atom, else as `LIST ( … )`
+(`tests/test_list_shape.py`). The parser side is
 [grammar-python-antlr-linkml-array](https://github.com/rdf-array/grammar-python-antlr-linkml-array),
 the validator [PyShEx-array](https://github.com/rdf-array/PyShEx-array), whose doc/rdf-array.md
 describes rdf-array and lists the sibling forks. `ShExJ.py` was edited by hand to match the `.jsg`

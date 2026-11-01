@@ -139,8 +139,8 @@ class ShExC:
             return self.shapeAnd(sexpr)
         elif isinstance(sexpr, ShExJ.ShapeNot):
             return self.shapeNot(sexpr)
-        elif isinstance(sexpr, ShExJ.Collection):
-            return self.collection(sexpr)
+        elif isinstance(sexpr, ShExJ.ListShape):
+            return self.listShape(sexpr)
         elif isinstance(sexpr, ShExJ.NodeConstraint):
             return self.nodeConstraint(sexpr)
         elif isinstance(sexpr, ShExJ.Shape):
@@ -180,19 +180,39 @@ class ShExC:
         return self.binop(shapeAnd, 'AND')
 
     def shapeNot(self, shapeNot: ShExJ.ShapeNot) -> List[TOKEN]:
-        # rdf-array: `((x))` is a Collection, so an AND/OR, which binop already parenthesises, is not wrapped again
+        # rdf-array: an AND/OR, which binop already parenthesises, is not wrapped again
         if isinstance(shapeNot.shapeExpr, (ShExJ.ShapeOr, ShExJ.ShapeAnd)):
             return [self.shapeExprLabel(shapeNot.id)] + ['NOT'] + self.shapeExpr(shapeNot.shapeExpr)
         return [self.shapeExprLabel(shapeNot.id)] + ['NOT ('] + self.shapeExpr(shapeNot.shapeExpr) + [')']
 
-    def collection(self, coll: ShExJ.Collection) -> List[TOKEN]:
-        """ rdf-array: ((shapeExpr))[min, max]: [m] exactly m elements, [m, *] at least m, nothing for any length """
-        bounds = ''
-        if coll.min is not None or coll.max is not None:
-            mn = coll.min if coll.min is not None else 0
-            mx = coll.max if coll.max is not None else -1
-            bounds = f'[{mn}]' if mx == mn else f'[{mn}, *]' if mx == -1 else f'[{mn}, {mx}]'
-        return [self.shapeExprLabel(coll.id)] + ['(('] + self.shapeExpr(coll.shapeExpr) + ['))' + bounds]
+    def listShape(self, ls: ShExJ.ListShape) -> List[TOKEN]:
+        """ rdf-array: `LIST card x` when the expression is one Member with a cardinality over an inline shape atom,
+            else `LIST ( ... )`, the regular expression over the members """
+        rval = [self.shapeExprLabel(ls.id)]
+        e = ls.expression
+        card = self.cardinality(e.min, e.max)
+        if isinstance(e, ShExJ.Member) and card and self._is_inline_atom(e.shapeExpr):
+            return rval + ['LIST ' + card] + self.shapeExpr(e.shapeExpr)
+        return rval + ['LIST (', INDENT] + self.listExpr(e, nested=False) + [OUTDENT, BREAK, ')']
+
+    def listExpr(self, e: ShExJ.listExpr, nested: bool = True) -> List[TOKEN]:
+        """ a Member as `x card`; a ListEachOf or ListOneOf as `( a ; b ) card` or `( a | b ) card`, without the
+            parentheses when it is the whole of a `LIST ( ... )` and carries no cardinality """
+        card = self.cardinality(e.min, e.max)
+        if isinstance(e, ShExJ.Member):
+            return self.shapeExpr(e.shapeExpr) + ([card] if card else [])
+        sep = [';', BREAK] if isinstance(e, ShExJ.ListEachOf) else ['|', BREAK]
+        rval = self.listExpr(e.expressions[0])
+        for x in e.expressions[1:]:
+            rval += sep + self.listExpr(x)
+        if nested or card:
+            rval = ['( ', INDENT] + rval + [OUTDENT, BREAK, ')' + card]
+        return rval
+
+    @staticmethod
+    def _is_inline_atom(se: ShExJ.shapeExpr) -> bool:
+        """ what `LIST card x` may take: an inline shape atom (a ShapeAnd or ShapeOr counts, since binop parenthesises it) """
+        return not isinstance(se, (ShExJ.ShapeNot, ShExJ.ShapeDecl, ShExJ.ShapeExternal))
 
     def nodeConstraint(self, nc: ShExJ.NodeConstraint) -> List[TOKEN]:
         constraints = []

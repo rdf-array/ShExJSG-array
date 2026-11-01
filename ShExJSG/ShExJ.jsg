@@ -22,13 +22,20 @@ InnerContext    {,}
 
 
 # Shape Expressions
-shapeExpr        = (ShapeDecl | ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | shapeExprLabel | ShapeExternal | Collection) ;
+shapeExpr        = (ShapeDecl | ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | shapeExprLabel | ShapeExternal | ListShape) ;
 ShapeDecl        {id:shapeExprLabel? abstract:@bool? restricts:[shapeExprLabel+]? shapeExpr:shapeExpr }
 ShapeOr          {id:shapeExprLabel? shapeExprs:[shapeExpr{2,}] }
 ShapeAnd         {id:shapeExprLabel? shapeExprs:[shapeExpr{2,}] }
 ShapeNot         {id:shapeExprLabel? shapeExpr:shapeExpr }
-# rdf-array: ((shapeExpr))[min, max], a sequence of min to max elements each conforming to shapeExpr (max -1: unbounded)
-Collection       {id:shapeExprLabel? shapeExpr:shapeExpr min:@int? max:@int? }
+# rdf-array: the LIST shape expression (rdf-array/docs/array-syntax.md §7): the focus node is a sequence whose
+# members, in order, match the regular expression `expression`.  A Member matches one member satisfying its
+# shapeExpr; ListEachOf is an ordered concatenation and ListOneOf a choice; min and max are as on triple
+# expressions (absent: 1; max -1: unbounded).  `LIST card x` is a ListShape over one Member.
+ListShape        {id:shapeExprLabel? expression:listExpr }
+listExpr         = (Member | ListEachOf | ListOneOf) ;
+Member           { shapeExpr:shapeExpr min:@int? max:@int? }
+ListEachOf       { expressions:[listExpr+] min:@int? max:@int? }
+ListOneOf        { expressions:[listExpr+] min:@int? max:@int? }
 ShapeExternal    {id:shapeExprLabel?  }
 shapeExprLabel   = IRIREF|BNODE ;
 # TODO: Explain why xsFacet* here causes a fail

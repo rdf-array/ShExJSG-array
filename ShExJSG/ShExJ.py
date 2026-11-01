@@ -501,14 +501,14 @@ class Schema(jsg.JSGObject):
                 'imports': typing.Optional[jsg.ArrayFactory('imports', _CONTEXT, IRIREF, 1, None)],
                 'startActs': typing.Optional[jsg.ArrayFactory('startActs', _CONTEXT, SemAct, 1, None)],
                 'start': typing.Optional["shapeExpr"],
-                'shapes': typing.Optional[jsg.ArrayFactory('shapes', _CONTEXT, typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "Collection"], 1, None)]}
+                'shapes': typing.Optional[jsg.ArrayFactory('shapes', _CONTEXT, typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "ListShape"], 1, None)]}
     _strict = True
 
     def __init__(self,
                  imports: typing.Optional[typing.List[str]] = None,
                  startActs: typing.Optional[typing.List[SemAct]] = None,
-                 start: typing.Optional[typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"]] = None,
-                 shapes: typing.Optional[typing.List[typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"]]] = None,
+                 start: typing.Optional[typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"]] = None,
+                 shapes: typing.Optional[typing.List[typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"]]] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
         setattr(self, '@context', _kwargs.get('@context', None))
@@ -531,7 +531,7 @@ class ShapeDecl(jsg.JSGObject):
                  id: typing.Optional[typing.Union[str, str]] = None,
                  abstract: typing.Optional[bool] = None,
                  restricts: typing.Optional[typing.List[typing.Union[str, str]]] = None,
-                 shapeExpr: typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"] = None,
+                 shapeExpr: typing.Union["ShapeDecl", "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
         self.id = id
@@ -544,12 +544,12 @@ class ShapeDecl(jsg.JSGObject):
 class ShapeOr(jsg.JSGObject):
     _reference_types = []
     _members = {'id': typing.Optional[shapeExprLabel],
-                'shapeExprs': jsg.ArrayFactory('shapeExprs', _CONTEXT, typing.Union[ShapeDecl, "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "Collection"], 2, None)}
+                'shapeExprs': jsg.ArrayFactory('shapeExprs', _CONTEXT, typing.Union[ShapeDecl, "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "ListShape"], 2, None)}
     _strict = True
 
     def __init__(self,
                  id: typing.Optional[typing.Union[str, str]] = None,
-                 shapeExprs: typing.List[typing.Union[ShapeDecl, "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"]] = None,
+                 shapeExprs: typing.List[typing.Union[ShapeDecl, "ShapeOr", "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"]] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
         self.id = id
@@ -560,12 +560,12 @@ class ShapeOr(jsg.JSGObject):
 class ShapeAnd(jsg.JSGObject):
     _reference_types = []
     _members = {'id': typing.Optional[shapeExprLabel],
-                'shapeExprs': jsg.ArrayFactory('shapeExprs', _CONTEXT, typing.Union[ShapeDecl, ShapeOr, "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "Collection"], 2, None)}
+                'shapeExprs': jsg.ArrayFactory('shapeExprs', _CONTEXT, typing.Union[ShapeDecl, ShapeOr, "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[IRIREF, BNODE], ShapeExternal, "ListShape"], 2, None)}
     _strict = True
 
     def __init__(self,
                  id: typing.Optional[typing.Union[str, str]] = None,
-                 shapeExprs: typing.List[typing.Union[ShapeDecl, ShapeOr, "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"]] = None,
+                 shapeExprs: typing.List[typing.Union[ShapeDecl, ShapeOr, "ShapeAnd", "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"]] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
         self.id = id
@@ -581,31 +581,90 @@ class ShapeNot(jsg.JSGObject):
 
     def __init__(self,
                  id: typing.Optional[typing.Union[str, str]] = None,
-                 shapeExpr: typing.Union[ShapeDecl, ShapeOr, ShapeAnd, "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"] = None,
+                 shapeExpr: typing.Union[ShapeDecl, ShapeOr, ShapeAnd, "ShapeNot", NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
         self.id = id
         self.shapeExpr = shapeExpr
 
 
-# rdf-array: ((shapeExpr))[min, max], a sequence of min to max elements each conforming to shapeExpr (max -1: unbounded)
-class Collection(jsg.JSGObject):
+# rdf-array: the LIST shape expression (rdf-array/docs/array-syntax.md §7): the focus node is a sequence whose
+# members, in order, match the regular expression `expression`, a Member, ListEachOf or ListOneOf.  min and
+# max are as on triple expressions (absent: 1; max -1: unbounded).
+class ListShape(jsg.JSGObject):
     _reference_types = []
     _members = {'id': typing.Optional[shapeExprLabel],
-                'shapeExpr': "shapeExpr",
+                'expression': "listExpr"}
+    _strict = True
+
+    def __init__(self,
+                 id: typing.Optional[typing.Union[str, str]] = None,
+                 expression: typing.Union["Member", "ListEachOf", "ListOneOf"] = None,
+                 **_kwargs: typing.Dict[str, object]):
+        super().__init__(_CONTEXT, **_kwargs)
+        self.id = id
+        self.expression = expression
+
+
+
+listExpr = typing.Union["Member", "ListEachOf", "ListOneOf"]
+
+
+class Member(jsg.JSGObject):
+    """ one member of the sequence satisfying shapeExpr, repeated min to max times """
+    _reference_types = []
+    _members = {'shapeExpr': "shapeExpr",
                 'min': typing.Optional[jsg.Integer],
                 'max': typing.Optional[jsg.Integer]}
     _strict = True
 
     def __init__(self,
-                 id: typing.Optional[typing.Union[str, str]] = None,
-                 shapeExpr: typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "Collection"] = None,
+                 shapeExpr: typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, "Shape", typing.Union[str, str], ShapeExternal, "ListShape"] = None,
                  min: typing.Optional[int] = None,
                  max: typing.Optional[int] = None,
                  **_kwargs: typing.Dict[str, object]):
         super().__init__(_CONTEXT, **_kwargs)
-        self.id = id
         self.shapeExpr = shapeExpr
+        self.min = min
+        self.max = max
+
+
+
+class ListEachOf(jsg.JSGObject):
+    """ the expressions in order (unlike a triple expression's EachOf), repeated min to max times """
+    _reference_types = []
+    _members = {'expressions': jsg.ArrayFactory('expressions', _CONTEXT, typing.Union[Member, "ListEachOf", "ListOneOf"], 1, None),
+                'min': typing.Optional[jsg.Integer],
+                'max': typing.Optional[jsg.Integer]}
+    _strict = True
+
+    def __init__(self,
+                 expressions: typing.List[typing.Union[Member, "ListEachOf", "ListOneOf"]] = None,
+                 min: typing.Optional[int] = None,
+                 max: typing.Optional[int] = None,
+                 **_kwargs: typing.Dict[str, object]):
+        super().__init__(_CONTEXT, **_kwargs)
+        self.expressions = expressions
+        self.min = min
+        self.max = max
+
+
+
+class ListOneOf(jsg.JSGObject):
+    """ one of the expressions, repeated min to max times """
+    _reference_types = []
+    _members = {'expressions': jsg.ArrayFactory('expressions', _CONTEXT, typing.Union[Member, ListEachOf, "ListOneOf"], 1, None),
+                'min': typing.Optional[jsg.Integer],
+                'max': typing.Optional[jsg.Integer]}
+    _strict = True
+
+    def __init__(self,
+                 expressions: typing.List[typing.Union[Member, ListEachOf, "ListOneOf"]] = None,
+                 min: typing.Optional[int] = None,
+                 max: typing.Optional[int] = None,
+                 **_kwargs: typing.Dict[str, object]):
+        super().__init__(_CONTEXT, **_kwargs)
+        self.expressions = expressions
         self.min = min
         self.max = max
 
@@ -718,10 +777,10 @@ class TripleConstraint(jsg.JSGObject):
                  id: typing.Optional[typing.Union[str, str]] = None,
                  inverse: typing.Optional[bool] = None,
                  predicate: str = None,
-                 valueExpr: typing.Optional[typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[str, str], ShapeExternal, "Collection"]] = None,
+                 valueExpr: typing.Optional[typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[str, str], ShapeExternal, "ListShape"]] = None,
                  min: typing.Optional[int] = None,
                  max: typing.Optional[int] = None,
-                 onShapeExpression: typing.Optional[typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[str, str], ShapeExternal, "Collection"]] = None,
+                 onShapeExpression: typing.Optional[typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[str, str], ShapeExternal, "ListShape"]] = None,
                  semActs: typing.Optional[typing.List[SemAct]] = None,
                  annotations: typing.Optional[typing.List[Annotation]] = None,
                  **_kwargs: typing.Dict[str, object]):
@@ -738,6 +797,6 @@ class TripleConstraint(jsg.JSGObject):
 
 
 
-shapeExpr = typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[IRIREF, BNODE], ShapeExternal, Collection]
+shapeExpr = typing.Union[ShapeDecl, ShapeOr, ShapeAnd, ShapeNot, NodeConstraint, Shape, typing.Union[IRIREF, BNODE], ShapeExternal, ListShape]
 
 _CONTEXT.NAMESPACE = locals()
